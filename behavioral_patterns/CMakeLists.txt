@@ -1,2 +1,3 @@
 project(behavioral_patterns)
 add_executable(chain_of_responsibility chain_of_responsibility.cc)
+add_executable(command command.cc)
