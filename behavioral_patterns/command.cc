@@ -1,4 +1,5 @@
 #include <iostream>
+#include <memory>
 #include <string>
 /**
  * The Command interface declares a method for executing a command.
@@ -47,7 +48,7 @@ class ComplexCommand : public Command {
    * @var Receiver
    */
  private:
-  Receiver *receiver_;
+  std::shared_ptr<Receiver> receiver_;
   /**
    * Context data, required for launching the receiver's methods.
    */
@@ -58,7 +59,8 @@ class ComplexCommand : public Command {
    * context data via the constructor.
    */
  public:
-  ComplexCommand(Receiver *receiver, std::string a, std::string b)
+  ComplexCommand(std::shared_ptr<Receiver> receiver, std::string a,
+                 std::string b)
       : receiver_(receiver), a_(a), b_(b) {}
   /**
    * Commands can delegate to any methods of a receiver.
@@ -80,22 +82,19 @@ class Invoker {
    * @var Command
    */
  private:
-  Command *on_start_;
+  std::shared_ptr<Command> on_start_;
   /**
    * @var Command
    */
-  Command *on_finish_;
+  std::shared_ptr<Command> on_finish_;
   /**
    * Initialize commands.
    */
  public:
-  ~Invoker() {
-    delete on_start_;
-    delete on_finish_;
-  }
+  ~Invoker() {}
 
-  void SetOnStart(Command *command) { on_start_ = command; }
-  void SetOnFinish(Command *command) { on_finish_ = command; }
+  void SetOnStart(std::shared_ptr<Command> command) { on_start_ = command; }
+  void SetOnFinish(std::shared_ptr<Command> command) { on_finish_ = command; }
   /**
    * The Invoker does not depend on concrete command or receiver classes. The
    * Invoker passes a request to a receiver indirectly, by executing a command.
@@ -117,15 +116,11 @@ class Invoker {
  */
 
 int main() {
-  Invoker *invoker = new Invoker;
-  invoker->SetOnStart(new SimpleCommand("Say Hi!"));
-  Receiver *receiver = new Receiver;
+  std::unique_ptr<Invoker> invoker(new Invoker());
+  invoker->SetOnStart(std::make_shared<SimpleCommand>("Say Hi!"));
+  std::shared_ptr<Receiver> receiver(new Receiver());
   invoker->SetOnFinish(
-      new ComplexCommand(receiver, "Send email", "Save report"));
+      std::make_shared<ComplexCommand>(receiver, "Send email", "Save report"));
   invoker->DoSomethingImportant();
-
-  delete invoker;
-  delete receiver;
-
   return 0;
 }
