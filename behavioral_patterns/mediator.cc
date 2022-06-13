@@ -1,3 +1,9 @@
+/**
+ * Mediator Design Pattern
+ *
+ * Define an object that encapsulates how a set of objects interact.
+ */
+
 #include <iostream>
 #include <string>
 /**
