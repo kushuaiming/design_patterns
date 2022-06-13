@@ -11,88 +11,84 @@
  * mediator about various events. The Mediator may react to these events and
  * pass the execution to other components.
  */
-class BaseComponent;
+class Colleague;
 class Mediator {
  public:
-  virtual void Notify(BaseComponent *sender, std::string event) const = 0;
+  virtual void Notify(Colleague *sender, std::string event) const = 0;
 };
 
 /**
- * The Base Component provides the basic functionality of storing a mediator's
- * instance inside component objects.
+ * The Colleague provides the basic functionality of storing a mediator's
+ * instance inside ConcreteColleague objects.
  */
-class BaseComponent {
+class Colleague {
  protected:
   Mediator *mediator_;
 
  public:
-  BaseComponent(Mediator *mediator = nullptr) : mediator_(mediator) {}
+  Colleague(Mediator *mediator = nullptr) : mediator_(mediator) {}
   void set_mediator(Mediator *mediator) { mediator_ = mediator; }
 };
 
 /**
- * Concrete Components implement various functionality. They don't depend on
- * other components. They also don't depend on any concrete mediator classes.
+ * Concrete Colleague implement various functionality. They don't depend on
+ * other Colleagues. They also don't depend on any concrete mediator classes.
  */
-class Component1 : public BaseComponent {
+class ConcreteColleague1 : public Colleague {
  public:
   void DoA() {
-    std::cout << "Component 1 does A.\n";
+    std::cout << "Colleague 1 does A.\n";
     mediator_->Notify(this, "A");
   }
   void DoB() {
-    std::cout << "Component 1 does B.\n";
+    std::cout << "Colleague 1 does B.\n";
     mediator_->Notify(this, "B");
   }
 };
 
-class Component2 : public BaseComponent {
+class ConcreteColleague2 : public Colleague {
  public:
   void DoC() {
-    std::cout << "Component 2 does C.\n";
+    std::cout << "Colleague 2 does C.\n";
     mediator_->Notify(this, "C");
   }
   void DoD() {
-    std::cout << "Component 2 does D.\n";
+    std::cout << "Colleague 2 does D.\n";
     mediator_->Notify(this, "D");
   }
 };
 
 /**
  * Concrete Mediators implement cooperative behavior by coordinating several
- * components.
+ * colleague.
  */
 class ConcreteMediator : public Mediator {
  private:
-  Component1 *component1_;
-  Component2 *component2_;
+  ConcreteColleague1 *colleague1_;
+  ConcreteColleague2 *colleague2_;
 
  public:
-  ConcreteMediator(Component1 *c1, Component2 *c2)
-      : component1_(c1), component2_(c2) {
-    component1_->set_mediator(this);
-    component2_->set_mediator(this);
+  ConcreteMediator(ConcreteColleague1 *c1, ConcreteColleague2 *c2)
+      : colleague1_(c1), colleague2_(c2) {
+    colleague1_->set_mediator(this);
+    colleague2_->set_mediator(this);
   }
-  void Notify(BaseComponent *sender, std::string event) const override {
+  void Notify(Colleague *sender, std::string event) const override {
     if (event == "A") {
       std::cout << "Mediator reacts on A and triggers following operations:\n";
-      component2_->DoC();
+      colleague2_->DoC();
     }
     if (event == "D") {
       std::cout << "Mediator reacts on D and triggers following operations:\n";
-      component1_->DoB();
-      component2_->DoC();
+      colleague1_->DoB();
+      colleague2_->DoC();
     }
   }
 };
 
-/**
- * The client code.
- */
-
 void ClientCode() {
-  Component1 *c1 = new Component1;
-  Component2 *c2 = new Component2;
+  ConcreteColleague1 *c1 = new ConcreteColleague1;
+  ConcreteColleague2 *c2 = new ConcreteColleague2;
   ConcreteMediator *mediator = new ConcreteMediator(c1, c2);
   std::cout << "Client triggers operation A.\n";
   c1->DoA();
