@@ -1,12 +1,13 @@
+// Intent: Without violating encapsulation, capture and externalize an object's
+// internal state so that the object can be restored to this state later.
+
 #include <ctime>
 #include <iostream>
 #include <string>
 #include <vector>
 
-/**
- * The Memento interface provides a way to retrieve the memento's metadata, such
- * as creation date or name. However, it doesn't expose the Originator's state.
- */
+// stores internal state of the Originator object.
+// protects against access by objects other than the originator.
 class Memento {
  public:
   virtual std::string GetName() const = 0;
