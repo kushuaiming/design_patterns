@@ -6,61 +6,41 @@
 #include <string>
 #include <vector>
 
+namespace {
+static constexpr char alphanum[] =
+    "0123456789"
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "abcdefghijklmnopqrstuvwxyz";
+}
+
 // stores internal state of the Originator object.
 // protects against access by objects other than the originator.
 class Memento {
  public:
-  virtual std::string GetName() const = 0;
-  virtual std::string date() const = 0;
-  virtual std::string state() const = 0;
-};
-
-/**
- * The Concrete Memento contains the infrastructure for storing the Originator's
- * state.
- */
-class ConcreteMemento : public Memento {
- private:
-  std::string state_;
-  std::string date_;
-
- public:
-  ConcreteMemento(std::string state) : state_(state) {
-    state_ = state;
+  Memento(std::string state) : state_(state) {
     std::time_t now = std::time(0);
     date_ = std::ctime(&now);
   }
-  /**
-   * The Originator uses this method when restoring its state.
-   */
-  std::string state() const override { return state_; }
-  /**
-   * The rest of the methods are used by the Caretaker to display metadata.
-   */
-  std::string GetName() const override {
+
+  std::string GetName() const {
     return date_ + " / (" + state_.substr(0, 9) + "...)";
   }
-  std::string date() const override { return date_; }
+
+  std::string state() const { return state_; }
+  std::string date() const { return date_; }
+
+ private:
+  std::string state_;
+  std::string date_;
 };
 
-/**
- * The Originator holds some important state that may change over time. It also
- * defines a method for saving the state inside a memento and another method for
- * restoring the state from it.
- */
+// creates a memento containing a snapshot of its current internal state.
+// uses the memento to restore its internal state.
 class Originator {
-  /**
-   * @var string For the sake of simplicity, the originator's state is stored
-   * inside a single variable.
-   */
  private:
   std::string state_;
 
   std::string GenerateRandomString(int length = 10) {
-    const char alphanum[] =
-        "0123456789"
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        "abcdefghijklmnopqrstuvwxyz";
     int stringLength = sizeof(alphanum) - 1;
 
     std::string random_string;
@@ -88,7 +68,7 @@ class Originator {
   /**
    * Saves the current state inside a memento.
    */
-  Memento *Save() { return new ConcreteMemento(state_); }
+  Memento *Save() { return new Memento(state_); }
   /**
    * Restores the Originator's state from a memento object.
    */
