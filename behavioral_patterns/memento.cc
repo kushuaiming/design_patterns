@@ -145,9 +145,6 @@ class Caretaker {
     }
   }
 };
-/**
- * Client code.
- */
 
 void ClientCode() {
   Originator *originator = new Originator("Super-duper-super-puper-super.");
