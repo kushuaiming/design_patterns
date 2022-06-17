@@ -54,45 +54,27 @@ class Originator {
   Originator(std::string state) : state_(state) {
     std::cout << "Originator: My initial state is: " << state_ << "\n";
   }
-  /**
-   * The Originator's business logic may affect its internal state. Therefore,
-   * the client should backup the state before launching methods of the business
-   * logic via the save() method.
-   */
+
   void DoSomething() {
     std::cout << "Originator: I'm doing something important.\n";
     state_ = GenerateRandomString(30);
     std::cout << "Originator: and my state has changed to: " << state_ << "\n";
   }
 
-  /**
-   * Saves the current state inside a memento.
-   */
   Memento *Save() { return new Memento(state_); }
-  /**
-   * Restores the Originator's state from a memento object.
-   */
+
   void Restore(Memento *memento) {
     state_ = memento->state();
     std::cout << "Originator: My state has changed to: " << state_ << "\n";
   }
 };
 
-/**
- * The Caretaker doesn't depend on the Concrete Memento class. Therefore, it
- * doesn't have access to the originator's state, stored inside the memento. It
- * works with all mementos via the base Memento interface.
- */
+// responsible for the memento's safekeeping.
+// never operates on or examines the contents of a memento.
 class Caretaker {
-  /**
-   * @var Memento[]
-   */
  private:
   std::vector<Memento *> mementos_;
 
-  /**
-   * @var Originator
-   */
   Originator *originator_;
 
  public:
