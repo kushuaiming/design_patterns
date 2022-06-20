@@ -1,30 +1,23 @@
-/**
- * Observer Design Pattern
- *
- * Intent: Lets you define a subscription mechanism to notify multiple objects
- * about any events that happen to the object they're observing.
- *
- * Note that there's a lot of different terms with similar meaning associated
- * with this pattern. Just remember that the Subject is also called the
- * Publisher and the Observer is often called the Subscriber and vice versa.
- * Also the verbs "observe", "listen" or "track" usually mean the same thing.
- */
+// Intent: Define a one-to-many dependency between objects so that when one
+// object changes state, all its dependents are notified and updated
+// automatically.
 
 #include <iostream>
 #include <list>
+#include <memory>
 #include <string>
 
-class IObserver {
+class Observer {
  public:
-  virtual ~IObserver(){};
+  virtual ~Observer(){};
   virtual void Update(const std::string &message_from_subject) = 0;
 };
 
-class ISubject {
+class Subject {
  public:
-  virtual ~ISubject(){};
-  virtual void Attach(IObserver *observer) = 0;
-  virtual void Detach(IObserver *observer) = 0;
+  virtual ~Subject(){};
+  virtual void Attach(Observer *observer) = 0;
+  virtual void Detach(Observer *observer) = 0;
   virtual void Notify() = 0;
 };
 
@@ -33,19 +26,19 @@ class ISubject {
  * changes.
  */
 
-class Subject : public ISubject {
+class ConcreteSubject : public Subject {
  public:
-  virtual ~Subject() { std::cout << "Goodbye, I was the Subject.\n"; }
+  virtual ~ConcreteSubject() { std::cout << "Goodbye, I was the Subject.\n"; }
 
   /**
    * The subscription management methods.
    */
-  void Attach(IObserver *observer) override {
+  void Attach(Observer *observer) override {
     list_observer_.push_back(observer);
   }
-  void Detach(IObserver *observer) override { list_observer_.remove(observer); }
+  void Detach(Observer *observer) override { list_observer_.remove(observer); }
   void Notify() override {
-    std::list<IObserver *>::iterator iterator = list_observer_.begin();
+    std::list<Observer *>::iterator iterator = list_observer_.begin();
     HowManyObserver();
     while (iterator != list_observer_.end()) {
       (*iterator)->Update(message_);
@@ -75,19 +68,19 @@ class Subject : public ISubject {
   }
 
  private:
-  std::list<IObserver *> list_observer_;
+  std::list<Observer *> list_observer_;
   std::string message_;
 };
 
-class Observer : public IObserver {
+class ConcreteObserver : public Observer {
  public:
-  Observer(Subject &subject) : subject_(subject) {
+  ConcreteObserver(ConcreteSubject &subject) : subject_(subject) {
     subject_.Attach(this);
-    std::cout << "Hi, I'm the Observer \"" << ++Observer::static_number_
+    std::cout << "Hi, I'm the Observer \"" << ++ConcreteObserver::static_number_
               << "\".\n";
-    number_ = Observer::static_number_;
+    number_ = ConcreteObserver::static_number_;
   }
-  virtual ~Observer() {
+  virtual ~ConcreteObserver() {
     std::cout << "Goodbye, I was the Observer \"" << number_ << "\".\n";
   }
 
@@ -101,48 +94,41 @@ class Observer : public IObserver {
   }
   void PrintInfo() {
     std::cout << "Observer \"" << number_
-              << "\": a new message is available --> "
-              << message_from_subject_ << "\n";
+              << "\": a new message is available --> " << message_from_subject_
+              << "\n";
   }
 
  private:
   std::string message_from_subject_;
-  Subject &subject_;
+  ConcreteSubject &subject_;
   static int static_number_;
   int number_;
 };
 
-int Observer::static_number_ = 0;
+int ConcreteObserver::static_number_ = 0;
 
 void ClientCode() {
-  Subject *subject = new Subject;
-  Observer *observer1 = new Observer(*subject);
-  Observer *observer2 = new Observer(*subject);
-  Observer *observer3 = new Observer(*subject);
-  Observer *observer4;
-  Observer *observer5;
+  std::unique_ptr<ConcreteSubject> subject(new ConcreteSubject);
+  std::unique_ptr<ConcreteObserver> observer1(new ConcreteObserver(*subject));
+  std::unique_ptr<ConcreteObserver> observer2(new ConcreteObserver(*subject));
+  std::unique_ptr<ConcreteObserver> observer3(new ConcreteObserver(*subject));
+  std::unique_ptr<ConcreteObserver> observer4;
+  std::unique_ptr<ConcreteObserver> observer5;
 
   subject->CreateMessage("Hello World! :D");
   observer3->RemoveMeFromTheList();
 
   subject->CreateMessage("The weather is hot today! :p");
-  observer4 = new Observer(*subject);
+  observer4 = std::make_unique<ConcreteObserver>(*subject);
 
   observer2->RemoveMeFromTheList();
-  observer5 = new Observer(*subject);
+  observer5 = std::make_unique<ConcreteObserver>(*subject);
 
-  subject->CreateMessage("My new car is great! ;)");
+  subject->CreateMessage("My new car is great!)");
   observer5->RemoveMeFromTheList();
 
   observer4->RemoveMeFromTheList();
   observer1->RemoveMeFromTheList();
-
-  delete observer5;
-  delete observer4;
-  delete observer3;
-  delete observer2;
-  delete observer1;
-  delete subject;
 }
 
 int main() {
