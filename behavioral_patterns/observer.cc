@@ -7,12 +7,15 @@
 #include <memory>
 #include <string>
 
+// defines an updating interface for objects that should be notified of changes
+// in a subject
 class Observer {
  public:
   virtual ~Observer(){};
   virtual void Update(const std::string &message_from_subject) = 0;
 };
 
+// konws its observers. Any number of Observer objects may observe a subject.
 class Subject {
  public:
   virtual ~Subject(){};
@@ -21,24 +24,16 @@ class Subject {
   virtual void Notify() = 0;
 };
 
-/**
- * The Subject owns some important state and notifies observers when the state
- * changes.
- */
-
 class ConcreteSubject : public Subject {
  public:
   virtual ~ConcreteSubject() { std::cout << "Goodbye, I was the Subject.\n"; }
 
-  /**
-   * The subscription management methods.
-   */
   void Attach(Observer *observer) override {
     list_observer_.push_back(observer);
   }
   void Detach(Observer *observer) override { list_observer_.remove(observer); }
   void Notify() override {
-    std::list<Observer *>::iterator iterator = list_observer_.begin();
+    std::list<Observer*>::iterator iterator = list_observer_.begin();
     HowManyObserver();
     while (iterator != list_observer_.end()) {
       (*iterator)->Update(message_);
@@ -55,12 +50,6 @@ class ConcreteSubject : public Subject {
               << " observers in the list.\n";
   }
 
-  /**
-   * Usually, the subscription logic is only a fraction of what a Subject can
-   * really do. Subjects commonly hold some important business logic, that
-   * triggers a notification method whenever something important is about to
-   * happen (or after it).
-   */
   void SomeBusinessLogic() {
     message_ = "change message message";
     Notify();
@@ -68,7 +57,7 @@ class ConcreteSubject : public Subject {
   }
 
  private:
-  std::list<Observer *> list_observer_;
+  std::list<Observer*> list_observer_;
   std::string message_;
 };
 
@@ -100,7 +89,7 @@ class ConcreteObserver : public Observer {
 
  private:
   std::string message_from_subject_;
-  ConcreteSubject &subject_;
+  ConcreteSubject& subject_;
   static int static_number_;
   int number_;
 };
