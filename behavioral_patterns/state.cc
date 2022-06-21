@@ -1,18 +1,12 @@
+// Intent: Allow an object to alter its behavior when its internal state
+// changes. The object will appear to change its class.
+
 #include <iostream>
 #include <typeinfo>
-/**
- * The base State class declares methods that all Concrete State should
- * implement and also provides a backreference to the Context object, associated
- * with the State. This backreference can be used by States to transition the
- * Context to another State.
- */
 
 class Context;
 
 class State {
-  /**
-   * @var Context
-   */
  protected:
   Context *context_;
 
@@ -25,42 +19,27 @@ class State {
   virtual void Handle2() = 0;
 };
 
-/**
- * The Context defines the interface of interest to clients. It also maintains a
- * reference to an instance of a State subclass, which represents the current
- * state of the Context.
- */
+// define the interface of interest to clients
 class Context {
-  /**
-   * @var State A reference to the current state of the Context.
-   */
  private:
   State *state_;
 
  public:
   Context(State *state) : state_(nullptr) { TransitionTo(state); }
   ~Context() { delete state_; }
-  /**
-   * The Context allows changing the State object at runtime.
-   */
+
   void TransitionTo(State *state) {
     std::cout << "Context: Transition to " << typeid(*state).name() << ".\n";
     if (state_ != nullptr) delete state_;
     state_ = state;
     state_->set_context(this);
   }
-  /**
-   * The Context delegates part of its behavior to the current State object.
-   */
+
   void Request1() { state_->Handle1(); }
   void Request2() { state_->Handle2(); }
 };
 
-/**
- * Concrete States implement various behaviors, associated with a state of the
- * Context.
- */
-
+// each subclass implements a behavior associated with a state of the Contex.
 class ConcreteStateA : public State {
  public:
   void Handle1() override;
@@ -87,9 +66,6 @@ void ConcreteStateA::Handle1() {
   }
 }
 
-/**
- * The client code.
- */
 void ClientCode() {
   Context *context = new Context(new ConcreteStateA);
   context->Request1();
