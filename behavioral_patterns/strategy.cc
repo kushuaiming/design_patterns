@@ -1,14 +1,11 @@
+// Intent: Define a family of algorithms, encapsulate each one, and make them
+// interchangeable. Strategy lets the algorithm vary independently from clients
+// that use it.
+
 #include <algorithm>
 #include <iostream>
 #include <string>
 #include <vector>
-/**
- * The Strategy interface declares operations common to all supported versions
- * of some algorithm.
- *
- * The Context uses this interface to call the algorithm defined by Concrete
- * Strategies.
- */
 class Strategy {
  public:
   virtual ~Strategy() {}
@@ -16,36 +13,19 @@ class Strategy {
       const std::vector<std::string> &data) const = 0;
 };
 
-/**
- * The Context defines the interface of interest to clients.
- */
-
+// is configured with a ConcreteStrategy object.
+// maintains a reference to a Strategy object.
+// may define an interface that lets Strategy access its data.
 class Context {
-  /**
-   * @var Strategy The Context maintains a reference to one of the Strategy
-   * objects. The Context does not know the concrete class of a strategy. It
-   * should work with all strategies via the Strategy interface.
-   */
  private:
   Strategy *strategy_;
-  /**
-   * Usually, the Context accepts a strategy through the constructor, but also
-   * provides a setter to change it at runtime.
-   */
  public:
   Context(Strategy *strategy = nullptr) : strategy_(strategy) {}
   ~Context() { delete strategy_; }
-  /**
-   * Usually, the Context allows replacing a Strategy object at runtime.
-   */
   void set_strategy(Strategy *strategy) {
     delete strategy_;
     strategy_ = strategy;
   }
-  /**
-   * The Context delegates some work to the Strategy object instead of
-   * implementing +multiple versions of the algorithm on its own.
-   */
   void DoSomeBusinessLogic() const {
     // ...
     std::cout << "Context: Sorting data using the strategy (not sure how it'll "
@@ -57,10 +37,7 @@ class Context {
   }
 };
 
-/**
- * Concrete Strategies implement the algorithm while following the base Strategy
- * interface. The interface makes them interchangeable in the Context.
- */
+// implements the algorithm using the Strategy interface.
 class ConcreteStrategyA : public Strategy {
  public:
   std::string DoAlgorithm(const std::vector<std::string> &data) const override {
@@ -85,11 +62,6 @@ class ConcreteStrategyB : public Strategy {
     return result;
   }
 };
-/**
- * The client code picks a concrete strategy and passes it to the context. The
- * client should be aware of the differences between strategies in order to make
- * the right choice.
- */
 
 void ClientCode() {
   Context *context = new Context(new ConcreteStrategyA);
