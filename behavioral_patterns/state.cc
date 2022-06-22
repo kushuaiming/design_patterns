@@ -2,6 +2,7 @@
 // changes. The object will appear to change its class.
 
 #include <iostream>
+#include <memory>
 #include <typeinfo>
 
 #include "type.h"
@@ -67,10 +68,10 @@ void ConcreteStateA::Handle1() {
 }
 
 void ClientCode() {
-  Context *context = new Context(new ConcreteStateA);
+  std::unique_ptr<Context> context =
+      std::make_unique<Context>(new ConcreteStateA);
   context->Request1();
   context->Request2();
-  delete context;
 }
 
 int main() {
