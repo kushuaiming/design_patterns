@@ -60,12 +60,10 @@ class ConcreteStateB : public State {
 };
 
 void ConcreteStateA::Handle1() {
-  {
-    std::cout << "ConcreteStateA handles request1.\n";
-    std::cout << "ConcreteStateA wants to change the state of the context.\n";
+  std::cout << "ConcreteStateA handles request1.\n";
+  std::cout << "ConcreteStateA wants to change the state of the context.\n";
 
-    context_->TransitionTo(new ConcreteStateB);
-  }
+  context_->TransitionTo(new ConcreteStateB);
 }
 
 void ClientCode() {
