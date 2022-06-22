@@ -4,6 +4,8 @@
 #include <iostream>
 #include <typeinfo>
 
+#include "type.h"
+
 class Context;
 
 class State {
@@ -29,7 +31,7 @@ class Context {
   ~Context() { delete state_; }
 
   void TransitionTo(State *state) {
-    std::cout << "Context: Transition to " << typeid(*state).name() << ".\n";
+    std::cout << "Context: Transition to " << name(state) << ".\n";
     if (state_ != nullptr) delete state_;
     state_ = state;
     state_->set_context(this);
